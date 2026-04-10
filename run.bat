@@ -2,12 +2,11 @@
 setlocal
 
 set ROOT_DIR=%~dp0
-set BACKEND_DIR=%ROOT_DIR%src\backend_dummy
 set FRONTEND_DIR=%ROOT_DIR%src\frontend
 
-echo Starting dummy backend...
-cd /d "%BACKEND_DIR%"
-start "backend" cmd /k python -m uvicorn main:app --reload --port 8000
+echo Starting backend from project root...
+cd /d "%ROOT_DIR%"
+start "backend" cmd /k uvicorn src.backend.main:app --reload --port 8000
 
 echo Starting frontend...
 cd /d "%FRONTEND_DIR%"
@@ -26,6 +25,6 @@ if not exist node_modules (
 start "frontend" cmd /k npm run dev
 
 echo.
-echo Dummy backend: http://localhost:8000
-echo Frontend:      http://localhost:5173
+echo Backend:  http://localhost:8000
+echo Frontend: http://localhost:5173
 echo.

@@ -1,33 +1,26 @@
-const BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
-export async function sendChatQuery(payload) {
-  const res = await fetch(`${BASE_URL}/chat`, {
-    method: "POST",
+export async function sendChatQuery({ query, sessionId }) {
+  const url = new URL(`${BASE_URL}/query`);
+  url.searchParams.set("q", query);
+  url.searchParams.set("session_id", sessionId);
+
+  const res = await fetch(url.toString(), {
+    method: "GET",
     headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
+      Accept: "application/json"
+    }
   });
 
   if (!res.ok) {
-    throw new Error("Chat API failed");
+    throw new Error(`Backend request failed with status ${res.status}`);
   }
 
-  return res.json();
-}
+  const data = await res.json();
 
-export async function fetchRoute(payload) {
-  const res = await fetch(`${BASE_URL}/route`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
-
-  if (!res.ok) {
-    throw new Error("Route API failed");
+  if (data?.error) {
+    throw new Error(data.error);
   }
 
-  return res.json();
+  return data;
 }
