@@ -4,12 +4,10 @@ from src.mcp_server.config import MAPPLS_API_KEY, SEARCH_BASE_URL
 
 def text_search(query: str, location: str = "", top_k: int = 10):
     """
-    Free-text place search for queries like:
-    - 'heritage sites in Mysuru'
-    - 'best biryani in Hyderabad'
-    - 'Apollo hospitals Chennai'
+    Free-text place search.
+    location: optional 'lat,lng'
     """
-    url = f"{SEARCH_BASE_URL}/places/textsearch/json"
+    url = url = "https://search.mappls.com/search/places/textsearch/json"
 
     params = {
         "query": query,
@@ -20,15 +18,35 @@ def text_search(query: str, location: str = "", top_k: int = 10):
     if location:
         params["location"] = location
 
-    response = requests.get(url, params=params, timeout=20)
-    response.raise_for_status()
+    try:
+        response = requests.get(url, params=params, timeout=20)
+    except requests.RequestException as e:
+        return {
+            "ok": False,
+            "tool": "text_search",
+            "stage": "request",
+            "url": url,
+            "params": params,
+            "error": str(e),
+        }
+
+    if response.status_code != 200:
+        return {
+            "ok": False,
+            "tool": "text_search",
+            "stage": "api_call",
+            "url": url,
+            "params": params,
+            "status_code": response.status_code,
+            "response_text": response.text,
+        }
 
     data = response.json()
-
-    # Keep output backend-friendly and stable
     results = data.get("suggestedLocations", []) or data.get("results", []) or []
 
     return {
+        "ok": True,
+        "tool": "text_search",
         "query": query,
         "location": location,
         "count": len(results),

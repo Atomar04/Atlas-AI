@@ -1,0 +1,1282 @@
+Mappls MCP Server
+ 2.0 
+OAS 3.1
+/openapi.json
+default
+
+
+GET
+/
+Health
+
+
+POST
+/tool/geocode
+Tool Geocode
+
+Parameters
+Cancel
+Reset
+No parameters
+
+Request body
+
+application/json
+Edit Value
+Schema
+{
+  "address": "Jamshedpur"
+}
+Execute
+Clear
+Responses
+Curl
+
+curl -X 'POST' \
+  'http://127.0.0.1:8000/tool/geocode' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "address": "Jamshedpur"
+}'
+Request URL
+http://127.0.0.1:8000/tool/geocode
+Server response
+Code	Details
+200	
+Response body
+Download
+{
+  "ok": true,
+  "tool": "geocode_address",
+  "query": "Jamshedpur",
+  "data": {
+    "copResults": {
+      "houseNumber": "",
+      "houseName": "",
+      "poi": "Ramada by Wyndham Jamshedpur",
+      "street": "",
+      "subSubLocality": "",
+      "subLocality": "Ram Das Bhatta",
+      "locality": "Bistupur",
+      "village": "",
+      "subDistrict": "Golmuri Cum Jugsalai",
+      "district": "East Singhbhum District",
+      "city": "Jamshedpur",
+      "state": "Jharkhand",
+      "pincode": "831001",
+      "formattedAddress": "Ramada by Wyndham Jamshedpur, Ram Das Bhatta, Bistupur, Golmuri Cum Jugsalai, East Singhbhum District, Jamshedpur, Jharkhand, 831001",
+      "eLoc": "T2ZKZB",
+      "geocodeLevel": "poi",
+      "confidenceScore": 0.4
+    }
+  }
+}
+Response headers
+ content-length: 594 
+ content-type: application/json 
+ date: Fri,10 Apr 2026 18:30:33 GMT 
+ server: uvicorn 
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string",
+      "input": "string",
+      "ctx": {}
+    }
+  ]
+}
+No links
+
+POST
+/tool/nearby
+Tool Nearby
+
+Parameters
+Cancel
+Reset
+No parameters
+
+Request body
+
+application/json
+Edit Value
+Schema
+{
+  "lat": 28.3670,
+  "lng": 75.5880,
+  "keyword": "restaurant",
+  "radius": 1000
+}
+Execute
+Clear
+Responses
+Curl
+
+curl -X 'POST' \
+  'http://127.0.0.1:8000/tool/nearby' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "lat": 28.3670,
+  "lng": 75.5880,
+  "keyword": "restaurant",
+  "radius": 1000
+}'
+Request URL
+http://127.0.0.1:8000/tool/nearby
+Server response
+Code	Details
+200	
+Response body
+Download
+{
+  "ok": true,
+  "tool": "search_nearby",
+  "location": "28.367,75.588",
+  "keyword": "restaurant",
+  "radius": 1000,
+  "count": 10,
+  "results": [
+    {
+      "distance": 66,
+      "eLoc": "Q965XK",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 1,
+      "placeAddress": "Rana Pratap Marg, Central Electronics Engineering Research Institute, Pilani Town, Rajasthan, 333031",
+      "placeName": "Backbit Cafeteria",
+      "type": "POI"
+    },
+    {
+      "distance": 251,
+      "eLoc": "AM8A1B",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 2,
+      "placeAddress": "Bhagirath Marg, Birla Institute of Technology and Science Area, Pilani Town, Rajasthan, 333031",
+      "placeName": "Food Ministry",
+      "type": "POI"
+    },
+    {
+      "distance": 270,
+      "eLoc": "2RTTDJ",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 3,
+      "placeAddress": "Birla Institute of Technology and Science Area, Pilani Town, Rajasthan, 333031",
+      "placeName": "Institute Canteen",
+      "type": "POI"
+    },
+    {
+      "distance": 332,
+      "eLoc": "17WR22",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 4,
+      "placeAddress": "Siri Road, CEERI Campus, Pilani Town, Rajasthan, 333031",
+      "placeName": "Maliya Cafe and Family Restaurant",
+      "type": "POI"
+    },
+    {
+      "distance": 339,
+      "eLoc": "17WR71",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 5,
+      "placeAddress": "Siri Road, CEERI Campus, Pilani Town, Rajasthan, 333031",
+      "placeName": "Saawariya Sarkar",
+      "type": "POI"
+    },
+    {
+      "distance": 343,
+      "eLoc": "8FOWJN",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 6,
+      "placeAddress": "Siri Road, CEERI Campus, Pilani Town, Rajasthan, 333031",
+      "placeName": "Lambas Restaurant",
+      "type": "POI"
+    },
+    {
+      "distance": 347,
+      "eLoc": "17WRDG",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 7,
+      "placeAddress": "Siri Road, CEERI Campus, Pilani Town, Rajasthan, 333031",
+      "placeName": "Shri Shyam Restaurant",
+      "type": "POI"
+    },
+    {
+      "distance": 367,
+      "eLoc": "T53WPQ",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 8,
+      "placeAddress": "Ganesh Colony, Pilani Town, Rajasthan, 333031",
+      "placeName": "Vatika Restaurant",
+      "type": "POI"
+    },
+    {
+      "distance": 381,
+      "eLoc": "HJ3L3R",
+      "keywords": [
+        "FODFFD"
+      ],
+      "orderIndex": 9,
+      "placeAddress": "Siri Road, CEERI Campus, Pilani Town, Rajasthan, 333031",
+      "placeName": "Bhati Royal Fast Food",
+      "type": "POI"
+    },
+    {
+      "distance": 383,
+      "eLoc": "ROYS2S",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 10,
+      "placeAddress": "Siri Road, CEERI Campus, Pilani Town, Rajasthan, 333031",
+      "placeName": "Kolkata Lazeez",
+      "type": "POI"
+    }
+  ],
+  "raw": {
+    "suggestedLocations": [
+      {
+        "distance": 66,
+        "eLoc": "Q965XK",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 1,
+        "placeAddress": "Rana Pratap Marg, Central Electronics Engineering Research Institute, Pilani Town, Rajasthan, 333031",
+        "placeName": "Backbit Cafeteria",
+        "type": "POI"
+      },
+      {
+        "distance": 251,
+        "eLoc": "AM8A1B",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 2,
+        "placeAddress": "Bhagirath Marg, Birla Institute of Technology and Science Area, Pilani Town, Rajasthan, 333031",
+        "placeName": "Food Ministry",
+        "type": "POI"
+      },
+      {
+        "distance": 270,
+        "eLoc": "2RTTDJ",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 3,
+        "placeAddress": "Birla Institute of Technology and Science Area, Pilani Town, Rajasthan, 333031",
+        "placeName": "Institute Canteen",
+        "type": "POI"
+      },
+      {
+        "distance": 332,
+        "eLoc": "17WR22",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 4,
+        "placeAddress": "Siri Road, CEERI Campus, Pilani Town, Rajasthan, 333031",
+        "placeName": "Maliya Cafe and Family Restaurant",
+        "type": "POI"
+      },
+      {
+        "distance": 339,
+        "eLoc": "17WR71",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 5,
+        "placeAddress": "Siri Road, CEERI Campus, Pilani Town, Rajasthan, 333031",
+        "placeName": "Saawariya Sarkar",
+        "type": "POI"
+      },
+      {
+        "distance": 343,
+        "eLoc": "8FOWJN",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 6,
+        "placeAddress": "Siri Road, CEERI Campus, Pilani Town, Rajasthan, 333031",
+        "placeName": "Lambas Restaurant",
+        "type": "POI"
+      },
+      {
+        "distance": 347,
+        "eLoc": "17WRDG",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 7,
+        "placeAddress": "Siri Road, CEERI Campus, Pilani Town, Rajasthan, 333031",
+        "placeName": "Shri Shyam Restaurant",
+        "type": "POI"
+      },
+      {
+        "distance": 367,
+        "eLoc": "T53WPQ",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 8,
+        "placeAddress": "Ganesh Colony, Pilani Town, Rajasthan, 333031",
+        "placeName": "Vatika Restaurant",
+        "type": "POI"
+      },
+      {
+        "distance": 381,
+        "eLoc": "HJ3L3R",
+        "keywords": [
+          "FODFFD"
+        ],
+        "orderIndex": 9,
+        "placeAddress": "Siri Road, CEERI Campus, Pilani Town, Rajasthan, 333031",
+        "placeName": "Bhati Royal Fast Food",
+        "type": "POI"
+      },
+      {
+        "distance": 383,
+        "eLoc": "ROYS2S",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 10,
+        "placeAddress": "Siri Road, CEERI Campus, Pilani Town, Rajasthan, 333031",
+        "placeName": "Kolkata Lazeez",
+        "type": "POI"
+      }
+    ],
+    "pageInfo": {
+      "pageCount": 1,
+      "totalHits": 30,
+      "totalPages": 3,
+      "pageSize": 10
+    }
+  }
+}
+Response headers
+ content-length: 4209 
+ content-type: application/json 
+ date: Fri,10 Apr 2026 18:31:42 GMT 
+ server: uvicorn 
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string",
+      "input": "string",
+      "ctx": {}
+    }
+  ]
+}
+No links
+
+POST
+/tool/route
+Tool Route
+
+Parameters
+Cancel
+Reset
+No parameters
+
+Request body
+
+application/json
+Edit Value
+Schema
+{
+  "origin": "28.3670,75.5880",
+  "destination": "28.4595,75.0286",
+  "traffic": false
+}
+Execute
+Clear
+Responses
+Curl
+
+curl -X 'POST' \
+  'http://127.0.0.1:8000/tool/route' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "origin": "28.3670,75.5880",
+  "destination": "28.4595,75.0286",
+  "traffic": false
+}'
+Request URL
+http://127.0.0.1:8000/tool/route
+Server response
+Code	Details
+200	
+Response body
+Download
+{
+  "ok": true,
+  "tool": "get_route",
+  "origin": "28.3670,75.5880",
+  "destination": "28.4595,75.0286",
+  "traffic": false,
+  "data": {
+    "routes": [
+      {
+        "duration": 0,
+        "distance": 0,
+        "legs": [
+          {
+            "summary": "",
+            "duration": 0,
+            "distance": 0,
+            "weight": 0,
+            "steps": []
+          }
+        ],
+        "weight_name": "routability",
+        "weight": 0,
+        "geometry": "{hu{E_oqzL??"
+      }
+    ],
+    "code": "Ok",
+    "Server": "DE-5400",
+    "waypoints": [
+      {
+        "distance": 5192814.339252,
+        "hint": "0UhpgFFKaYAAAAAADwAAACB4AAB-RgAAAAAAAFzaK0Gc66ZGgQ9ERgAAAAAPAAAAIHgAAH5GAAD2AAAAAfJUBCy-JwKY2LABoGGBBBICnwaY6-Tf",
+        "name": "",
+        "location": [
+          72.675841,
+          36.15902
+        ]
+      },
+      {
+        "distance": 5148470.980882,
+        "hint": "0UhpgFFKaYAAAAAADwAAACB4AAB-RgAAAAAAAFzaK0Gc66ZGgQ9ERgAAAAAPAAAAIHgAAH5GAAD2AAAAAfJUBCy-JwLsQbIBeNh4BBICnwaY6-Tf",
+        "name": "",
+        "location": [
+          72.675841,
+          36.15902
+        ]
+      }
+    ],
+    "version": "202404.221.5223"
+  }
+}
+Response headers
+ content-length: 747 
+ content-type: application/json 
+ date: Fri,10 Apr 2026 18:35:29 GMT 
+ server: uvicorn 
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string",
+      "input": "string",
+      "ctx": {}
+    }
+  ]
+}
+No links
+
+POST
+/tool/traffic
+Tool Traffic
+
+Parameters
+Try it out
+No parameters
+
+Request body
+
+application/json
+Example Value
+Schema
+{
+  "lat": 0,
+  "lng": 0
+}
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string",
+      "input": "string",
+      "ctx": {}
+    }
+  ]
+}
+No links
+
+POST
+/tool/place_details
+Tool Place Details
+
+Parameters
+Cancel
+Reset
+No parameters
+
+Request body
+
+application/json
+Edit Value
+Schema
+{
+  "eloc": "T2ZKZB"
+}
+Execute
+Clear
+Responses
+Curl
+
+curl -X 'POST' \
+  'http://127.0.0.1:8000/tool/place_details' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "eloc": "T2ZKZB"
+}'
+Request URL
+http://127.0.0.1:8000/tool/place_details
+Server response
+Code	Details
+200	
+Response body
+Download
+{
+  "ok": true,
+  "tool": "get_place_details",
+  "eloc": "T2ZKZB",
+  "data": {
+    "address": "OM Suite Pvt Ltd Holding No 3, Ramada Bhatta, Bistupur, Jamshedpur, Jharkhand, 831001",
+    "name": "Ramada by Wyndham Jamshedpur",
+    "eloc": "T2ZKZB"
+  }
+}
+Response headers
+ content-length: 215 
+ content-type: application/json 
+ date: Fri,10 Apr 2026 18:32:49 GMT 
+ server: uvicorn 
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string",
+      "input": "string",
+      "ctx": {}
+    }
+  ]
+}
+No links
+
+POST
+/tool/text_search
+Tool Text Search
+
+Parameters
+Cancel
+Reset
+No parameters
+
+Request body
+
+application/json
+Edit Value
+Schema
+{
+  "query": "restaurants in Pilani",
+  "location": "28.3670,75.5880",
+  "top_k": 5
+}
+Execute
+Clear
+Responses
+Curl
+
+curl -X 'POST' \
+  'http://127.0.0.1:8000/tool/text_search' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "query": "restaurants in Pilani",
+  "location": "28.3670,75.5880",
+  "top_k": 5
+}'
+Request URL
+http://127.0.0.1:8000/tool/text_search
+Server response
+Code	Details
+200	
+Response body
+Download
+{
+  "ok": true,
+  "tool": "text_search",
+  "query": "restaurants in Pilani",
+  "location": "28.3670,75.5880",
+  "count": 10,
+  "results": [
+    {
+      "distance": 20,
+      "eLoc": "LMPOS0",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 1,
+      "placeAddress": "Loharu Road, Nayako Ka Mohalla, Pilani Town, Rajasthan, 333031",
+      "placeName": "Raj Restaurant",
+      "type": "POI"
+    },
+    {
+      "distance": 27,
+      "eLoc": "P5P457",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 2,
+      "placeAddress": "Chirawa Road, Norangpura, Pilani Town, Rajasthan, 333031",
+      "placeName": "Manu Refreshment",
+      "type": "POI"
+    },
+    {
+      "distance": 36,
+      "eLoc": "5C888K",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 3,
+      "placeAddress": "Bhgat Singh Circle, Chirawa-Pilani Road, Pilani Town, Rajasthan, 333031",
+      "placeName": "The Pilani Cafe",
+      "type": "POI"
+    },
+    {
+      "distance": 39,
+      "eLoc": "J5FW9P",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 4,
+      "placeAddress": "Bhagat Singh Circle, Norangpura, Pilani Town, Rajasthan, 333031",
+      "placeName": "Vinayak Restaurant",
+      "type": "POI"
+    },
+    {
+      "distance": 42,
+      "eLoc": "1OELXE",
+      "keywords": [
+        "FODFFD"
+      ],
+      "orderIndex": 5,
+      "placeAddress": "Chirawa Road, Norangpura, Pilani Town, Rajasthan, 333031",
+      "placeName": "Rella Krishna Fast Food & Juice Varner",
+      "type": "POI"
+    },
+    {
+      "distance": 48,
+      "eLoc": "2RTVNO",
+      "keywords": [
+        "FODPUB"
+      ],
+      "orderIndex": 6,
+      "placeAddress": "Nayako Ka Mohalla, Pilani Town, Rajasthan, 333031",
+      "placeName": "Dangi Bar",
+      "type": "POI"
+    },
+    {
+      "distance": 50,
+      "eLoc": "LLJ3X6",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 7,
+      "placeAddress": "NH 709, Nayako Ka Mohalla, Pilani Town, Rajasthan, 333031",
+      "placeName": "Shiv Restaurant",
+      "type": "POI"
+    },
+    {
+      "distance": 97,
+      "eLoc": "2RTWLB",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 8,
+      "placeAddress": "Norangpura, Pilani Town, Rajasthan, 333031",
+      "placeName": "Puran Mal Lodge and Restaurant",
+      "type": "POI"
+    },
+    {
+      "distance": 146,
+      "eLoc": "1OE0FP",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 9,
+      "placeAddress": "Nayako Ka Mohalla, Pilani Town, Rajasthan, 333031",
+      "placeName": "City Cafe",
+      "type": "POI"
+    },
+    {
+      "distance": 160,
+      "eLoc": "J4RZ9P",
+      "keywords": [
+        "FODOTH"
+      ],
+      "orderIndex": 10,
+      "placeAddress": "Norangpura, Pilani Town, Rajasthan, 333031",
+      "placeName": "Shree Shyam Restaurant & Tiffin Center",
+      "type": "POI"
+    }
+  ],
+  "raw": {
+    "suggestedLocations": [
+      {
+        "distance": 20,
+        "eLoc": "LMPOS0",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 1,
+        "placeAddress": "Loharu Road, Nayako Ka Mohalla, Pilani Town, Rajasthan, 333031",
+        "placeName": "Raj Restaurant",
+        "type": "POI"
+      },
+      {
+        "distance": 27,
+        "eLoc": "P5P457",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 2,
+        "placeAddress": "Chirawa Road, Norangpura, Pilani Town, Rajasthan, 333031",
+        "placeName": "Manu Refreshment",
+        "type": "POI"
+      },
+      {
+        "distance": 36,
+        "eLoc": "5C888K",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 3,
+        "placeAddress": "Bhgat Singh Circle, Chirawa-Pilani Road, Pilani Town, Rajasthan, 333031",
+        "placeName": "The Pilani Cafe",
+        "type": "POI"
+      },
+      {
+        "distance": 39,
+        "eLoc": "J5FW9P",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 4,
+        "placeAddress": "Bhagat Singh Circle, Norangpura, Pilani Town, Rajasthan, 333031",
+        "placeName": "Vinayak Restaurant",
+        "type": "POI"
+      },
+      {
+        "distance": 42,
+        "eLoc": "1OELXE",
+        "keywords": [
+          "FODFFD"
+        ],
+        "orderIndex": 5,
+        "placeAddress": "Chirawa Road, Norangpura, Pilani Town, Rajasthan, 333031",
+        "placeName": "Rella Krishna Fast Food & Juice Varner",
+        "type": "POI"
+      },
+      {
+        "distance": 48,
+        "eLoc": "2RTVNO",
+        "keywords": [
+          "FODPUB"
+        ],
+        "orderIndex": 6,
+        "placeAddress": "Nayako Ka Mohalla, Pilani Town, Rajasthan, 333031",
+        "placeName": "Dangi Bar",
+        "type": "POI"
+      },
+      {
+        "distance": 50,
+        "eLoc": "LLJ3X6",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 7,
+        "placeAddress": "NH 709, Nayako Ka Mohalla, Pilani Town, Rajasthan, 333031",
+        "placeName": "Shiv Restaurant",
+        "type": "POI"
+      },
+      {
+        "distance": 97,
+        "eLoc": "2RTWLB",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 8,
+        "placeAddress": "Norangpura, Pilani Town, Rajasthan, 333031",
+        "placeName": "Puran Mal Lodge and Restaurant",
+        "type": "POI"
+      },
+      {
+        "distance": 146,
+        "eLoc": "1OE0FP",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 9,
+        "placeAddress": "Nayako Ka Mohalla, Pilani Town, Rajasthan, 333031",
+        "placeName": "City Cafe",
+        "type": "POI"
+      },
+      {
+        "distance": 160,
+        "eLoc": "J4RZ9P",
+        "keywords": [
+          "FODOTH"
+        ],
+        "orderIndex": 10,
+        "placeAddress": "Norangpura, Pilani Town, Rajasthan, 333031",
+        "placeName": "Shree Shyam Restaurant & Tiffin Center",
+        "type": "POI"
+      }
+    ],
+    "pageInfo": {
+      "pageCount": 1,
+      "totalHits": 30,
+      "totalPages": 3,
+      "pageSize": 10
+    }
+  }
+}
+Response headers
+ content-length: 4022 
+ content-type: application/json 
+ date: Fri,10 Apr 2026 18:31:02 GMT 
+ server: uvicorn 
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string",
+      "input": "string",
+      "ctx": {}
+    }
+  ]
+}
+No links
+
+POST
+/tool/distance_matrix
+Tool Distance Matrix
+
+Parameters
+Cancel
+Reset
+No parameters
+
+Request body
+
+application/json
+Edit Value
+Schema
+{
+  "origin": "75.5880,28.3670",
+  "destinations": [
+    "75.0286,28.4595",
+    "74.6186,28.0786"
+  ]
+}
+Execute
+Clear
+Responses
+Curl
+
+curl -X 'POST' \
+  'http://127.0.0.1:8000/tool/distance_matrix' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "origin": "75.5880,28.3670",
+  "destinations": [
+    "75.0286,28.4595",
+    "74.6186,28.0786"
+  ]
+}'
+Request URL
+http://127.0.0.1:8000/tool/distance_matrix
+Server response
+Code	Details
+200	
+Response body
+Download
+{
+  "ok": true,
+  "tool": "get_distance_matrix",
+  "origin": "75.5880,28.3670",
+  "destinations": [
+    "75.0286,28.4595",
+    "74.6186,28.0786"
+  ],
+  "traffic": false,
+  "data": {
+    "Server": "DE-5400",
+    "version": "202404.221.5223",
+    "results": {
+      "distances": [
+        [
+          0,
+          81167.4,
+          132447.9
+        ]
+      ],
+      "code": "Ok",
+      "durations": [
+        [
+          0,
+          6734.5,
+          8525.8
+        ]
+      ]
+    },
+    "responseCode": 200
+  }
+}
+Response headers
+ content-length: 302 
+ content-type: application/json 
+ date: Fri,10 Apr 2026 18:37:46 GMT 
+ server: uvicorn 
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string",
+      "input": "string",
+      "ctx": {}
+    }
+  ]
+}
+No links
+
+POST
+/tool/distance_matrix_eta
+Tool Distance Matrix Eta
+
+Parameters
+Cancel
+Reset
+No parameters
+
+Request body
+
+application/json
+Edit Value
+Schema
+{
+  "origin": "75.5880,28.3670",
+  "destinations": [
+    "75.0286,28.4595",
+    "74.6186,28.0786"
+  ]
+}
+
+Execute
+Clear
+Responses
+Curl
+
+curl -X 'POST' \
+  'http://127.0.0.1:8000/tool/distance_matrix_eta' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "origin": "75.5880,28.3670",
+  "destinations": [
+    "75.0286,28.4595",
+    "74.6186,28.0786"
+  ]
+}
+'
+Request URL
+http://127.0.0.1:8000/tool/distance_matrix_eta
+Server response
+Code	Details
+200	
+Response body
+Download
+{
+  "ok": true,
+  "tool": "distance_matrix_eta",
+  "origin": "75.5880,28.3670",
+  "destinations": [
+    "75.0286,28.4595",
+    "74.6186,28.0786"
+  ],
+  "data": {
+    "Server": "DE-5101",
+    "version": "202404.221.5223",
+    "results": {
+      "distances": [
+        [
+          0,
+          75562.6,
+          125039.1
+        ]
+      ],
+      "code": "Ok",
+      "durations": [
+        [
+          0,
+          7561.3,
+          9029.5
+        ]
+      ]
+    },
+    "responseCode": 200
+  }
+}
+Response headers
+ content-length: 286 
+ content-type: application/json 
+ date: Fri,10 Apr 2026 18:38:09 GMT 
+ server: uvicorn 
+Responses
+Code	Description	Links
+200	
+Successful Response
+
+Media type
+
+application/json
+Controls Accept header.
+Example Value
+Schema
+"string"
+No links
+422	
+Validation Error
+
+Media type
+
+application/json
+Example Value
+Schema
+{
+  "detail": [
+    {
+      "loc": [
+        "string",
+        0
+      ],
+      "msg": "string",
+      "type": "string",
+      "input": "string",
+      "ctx": {}
+    }
+  ]
+}
+No links
+
+Schemas
+DistanceMatrixRequestExpand allobject
+GeocodeRequestExpand allobject
+HTTPValidationErrorExpand allobject
+NearbyRequestExpand allobject
+PlaceDetailsRequestExpand allobject
+RouteRequestExpand allobject
+TextSearchRequestExpand allobject
+TrafficRequestExpand allobject
+ValidationErrorExpand allobject

@@ -22,31 +22,33 @@ class NearbyRequest(BaseModel):
     lat: float
     lng: float
     keyword: str
-    radius: int = 3000
+    radius: int = 1000
 
 
 class RouteRequest(BaseModel):
     origin: str
     destination: str
+    traffic: bool = False
 
 
 class TrafficRequest(BaseModel):
-    route_id: str
+    lat: float
+    lng: float
 
 
 class PlaceDetailsRequest(BaseModel):
-    place_id: str
+    eloc: str
 
 
 class TextSearchRequest(BaseModel):
     query: str
-    location: Optional[str] = ""
+    location: str = ""
     top_k: int = 10
 
 
 class DistanceMatrixRequest(BaseModel):
     origin: str
-    destinations: List[str]
+    destinations: list[str]
 
 
 @app.get("/")
@@ -73,7 +75,7 @@ def tool_nearby(req: NearbyRequest):
 @app.post("/tool/route")
 def tool_route(req: RouteRequest):
     try:
-        return get_route(req.origin, req.destination)
+        return get_route(req.origin, req.destination, req.traffic)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -81,7 +83,7 @@ def tool_route(req: RouteRequest):
 @app.post("/tool/traffic")
 def tool_traffic(req: TrafficRequest):
     try:
-        return get_traffic(req.route_id)
+        return get_traffic(req.lat, req.lng)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -89,7 +91,7 @@ def tool_traffic(req: TrafficRequest):
 @app.post("/tool/place_details")
 def tool_place_details(req: PlaceDetailsRequest):
     try:
-        return get_place_details(req.place_id)
+        return get_place_details(req.eloc)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
