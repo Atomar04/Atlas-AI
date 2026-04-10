@@ -1,21 +1,20 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BACKEND_DIR="$ROOT_DIR/src/backend"
+BACKEND_DIR="$ROOT_DIR/src/backend_dummy"
 FRONTEND_DIR="$ROOT_DIR/src/frontend"
 
 cleanup() {
   echo
   echo "Stopping services..."
-  jobs -p | xargs -r kill
+  jobs -p | xargs -r kill || true
 }
 trap cleanup EXIT INT TERM
 
-echo "Starting backend..."
+echo "Starting dummy backend..."
 cd "$BACKEND_DIR"
-uvicorn main:app --reload --port 8000 &
-BACKEND_PID=$!
+python -m uvicorn main:app --reload --port 8000 &
 
 echo "Starting frontend..."
 cd "$FRONTEND_DIR"
@@ -26,12 +25,10 @@ if [ ! -d "node_modules" ]; then
 fi
 
 npm run dev &
-FRONTEND_PID=$!
 
 echo
-echo "Project is starting..."
-echo "Backend:  http://localhost:8000"
-echo "Frontend: check Vite output below for exact URL"
+echo "Dummy backend: http://localhost:8000"
+echo "Frontend:      http://localhost:5173"
 echo
 
 wait
