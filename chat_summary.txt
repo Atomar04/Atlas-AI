@@ -1,0 +1,816 @@
+1. Overall backend idea
+
+We converged on this architecture:
+
+Frontend
+→ Backend (FastAPI)
+→ LLM via OpenRouter for intent parsing
+→ MCP server
+→ Mappls APIs
+→ Backend normalization / filtering / ranking
+→ Frontend-ready JSON
+
+Core design decisions:
+
+Use LLM for understanding, not for final ranking.
+Keep ranking deterministic in backend.
+Maintain session memory for follow-up queries.
+Return a frontend-ready response, not raw Mappls output.
+2. Final backend folder structure
+
+This is the cleaned backend structure we settled on:
+
+src/
+└── backend/
+    ├── main.py
+    ├── config.py
+    ├── clients/
+    │   └── mcp_client.py
+    ├── memory/
+    │   └── session_store.py
+    └── services/
+        ├── llm_service.py
+        ├── intent_parser.py
+        ├── ranking_service.py
+        ├── formatter.py
+        └── place_normalizer.py
+
+Things identified as removable:
+
+src/backend/services/llm_planner.py → unused, can delete
+src/backend/mcp_client.py → redundant if clients/mcp_client.py is used
+src/backend/schemas/ → not needed right now if unused
+3. Backend files and what each does
+src/backend/config.py
+
+Purpose:
+
+load environment variables
+store OpenRouter config
+
+Expected contents:
+
+OPENROUTER_API_KEY
+OPENROUTER_URL
+MODEL_NAME
+src/backend/services/llm_service.py
+
+Purpose:
+
+low-level wrapper for OpenRouter chat completion call
+
+Role:
+
+send prompt/messages
+return model output text
+src/backend/services/intent_parser.py
+
+Purpose:
+
+parse natural language query into structured JSON intent
+
+Expected output shape like:
+
+{
+  "intent": "search_places",
+  "category": "cafe",
+  "location": "Pilani",
+  "filters": {
+    "open_now": true,
+    "max_cost": 2
+  },
+  "top_k": 10
+}
+
+Important design decision:
+
+LLM should produce filters
+backend applies filters deterministically
+src/backend/memory/session_store.py
+
+Purpose:
+
+in-memory session memory for multi-turn conversation
+
+Expected functions:
+
+get_session(session_id)
+update_session(session_id, data)
+
+Expected stored fields:
+
+last_results
+last_query
+last_query_text
+center
+later also last_radius, used_traffic_matrix
+src/backend/services/place_normalizer.py
+
+Purpose:
+
+convert raw Mappls results into a stable internal schema
+
+Expected normalized fields:
+
+id
+name
+address
+category
+lat
+lng
+rating
+distance
+travel_time
+traffic_delay
+cost
+popularity
+open_now
+later also:
+matrix_distance
+matrix_eta
+
+Important decision:
+
+use fallbacks/defaults here so ranking and filtering do not crash if Mappls omits fields
+src/backend/services/ranking_service.py
+
+Purpose:
+
+deterministic scoring and ranking
+
+Important agreed logic:
+
+keep ranking in backend, not LLM
+support query-aware weights
+
+Current/target signals:
+
+speed / travel time
+distance
+rating
+relevance
+traffic
+cost
+popularity
+open_now
+later prefer:
+matrix_distance
+matrix_eta
+
+Important improvement we discussed:
+compute_score() should use get_weights(query) rather than hardcoded weights.
+
+We extended ranking logic to support:
+
+cheap / budget
+best / top
+nearest / closest
+open now
+src/backend/services/formatter.py
+
+Purpose:
+
+return frontend-ready JSON
+
+Important decision:
+
+use teammate’s exact formatter, unchanged
+
+Formatter signature:
+
+format_response(query, center, places, session_id=None, previous_query=None)
+
+And it returns:
+
+query
+center
+places
+summary
+map_actions
+interaction_hints
+context
+
+Main.py must pass:
+
+session_id
+previous_query
+4. Current backend main.py logic we settled on
+
+Core flow before Distance Matrix:
+
+load session
+get previous_query
+parse intent
+if search_places:
+geocode location
+nearby search
+normalize places
+apply filters
+rank
+save session
+return formatted response
+if refine_results:
+get previous results from session
+apply filters
+re-rank
+update session
+return formatted response
+
+Important fixes already discussed:
+
+store last_query_text
+pass session_id and previous_query to formatter
+apply filters even on first search
+re-rank after follow-up refine
+use rank_places(raw_places, q) not rank_places(raw_places)
+5. Dynamic filters
+
+We discussed two versions:
+
+Rejected direction
+a separate hardcoded filter_service.py
+Final direction
+keep filtering logic in main.py
+let LLM decide filters
+backend applies them generically
+
+Current filters supported conceptually:
+
+min_rating
+max_distance
+max_cost
+min_popularity
+keyword
+open_now
+
+Important point:
+
+filtering should operate on normalized fields
+not brittle string matching on raw query
+6. Radius strategy for Nearby
+
+We decided Nearby should not use a fixed notion of “close.”
+
+Planned strategy:
+
+walkable / near me / nearby → 1000
+nearest / closest → 2000
+station / airport / railway station → 3000
+best / top / popular / broad discovery → 5000
+default → 3000
+
+If sparse category:
+
+retry with larger radius later
+
+We added a helper concept in backend:
+
+determine_search_radius(query, intent)
+
+This is to be used in backend/main.py.
+
+7. Distance Matrix inclusion in backend logic
+
+This was the biggest conceptual refinement.
+
+Old design
+Nearby → maybe route each place → rank
+Improved design
+Nearby → shortlist candidates → Distance Matrix → rank
+Routing reserved for selected place
+
+Clean role split:
+
+Nearby → candidate retrieval
+Distance Matrix → compare many candidates by road distance / ETA
+Routing → actual route for chosen result
+
+Planned flow:
+
+query
+→ parse intent
+→ geocode center
+→ determine radius
+→ nearby(radius)
+→ normalize
+→ filter
+→ distance matrix enrichment
+→ deterministic ranking
+→ optional place details enrichment
+→ return
+
+We drafted a new backend/main.py concept with:
+
+determine_search_radius(...)
+should_use_traffic_matrix(...)
+enrich_places_with_distance_matrix(...)
+
+This assumes:
+
+nearby(..., radius=...)
+get_distance_matrix(...)
+8. Backend main.py planned changes for Distance Matrix
+
+We drafted these changes conceptually:
+
+Add helpers
+determine_search_radius(query, intent)
+should_use_traffic_matrix(query, intent)
+enrich_places_with_distance_matrix(origin_lat, origin_lng, places, use_traffic=False, max_candidates=10)
+Search flow becomes
+geocode
+radius select
+nearby with radius
+normalize
+filter
+distance matrix enrich
+rank
+save session with:
+last_radius
+used_traffic_matrix
+Ranking should then use
+matrix_distance
+matrix_eta
+
+instead of only fallback distance / travel_time
+
+9. MCP server structure and changes
+
+Current MCP structure discussed:
+
+src/
+└── mcp_server/
+    ├── main.py
+    ├── config.py
+    └── tools/
+        ├── geocode.py
+        ├── nearby.py
+        ├── routing.py
+        ├── traffic.py
+        └── place_details.py
+src/mcp_server/main.py
+
+Initially had only 3 tools:
+
+geocode
+nearby
+route
+
+We added 2 more to satisfy the minimum 5-tool requirement:
+
+traffic
+place_details
+
+Current exposed tools now:
+
+/tool/geocode
+/tool/nearby
+/tool/route
+/tool/traffic
+/tool/place_details
+
+Requirement-wise:
+
+structurally satisfies >=5 MCP tools
+MCP import fixes
+
+We fixed package imports by changing from things like:
+
+from tools.geocode import ...
+
+to:
+
+from src.mcp_server.tools.geocode import ...
+
+We also noted that tool files should import config as:
+
+from src.mcp_server.config import ...
+
+Recommended __init__.py files were suggested for:
+
+src/
+src/mcp_server/
+src/mcp_server/tools/
+backend subfolders too
+src/mcp_server/config.py
+
+We ended up needing both:
+
+a generic BASE_URL
+a geocode-specific URL
+
+Conceptually:
+
+MAPPLS_API_KEY
+BASE_URL = "https://atlas.mappls.com/api"
+GEOCODE_BASE_URL = "https://search.mappls.com/search/address/geocode"
+
+But then we discovered the bigger issue was not just URL shape, but auth flow.
+
+10. MCP auth/API execution status
+
+Important final state before switching chats:
+
+Structurally solved
+5 endpoints exposed
+Functionally not solved
+
+All 5 endpoints are failing due to Mappls API/auth issues.
+
+Observed:
+
+geocode returned 401 unauthorized / token not recognised
+nearby failed
+route failed
+traffic gave 500
+place_details gave 500
+
+Key takeaway:
+
+FastAPI/MCP wiring is mostly okay
+Mappls auth/API integration is not working yet
+backend testing should not proceed until MCP tools actually return valid Mappls-backed responses
+
+We also identified:
+
+place_details likely expects an actual place identifier, not "Pilani"
+route current test payloads may be wrong if using place names instead of coordinates/eLoc
+traffic and place_details 500s require inspecting server traceback
+help team is being contacted for API keys/auth
+11. Requirements.txt
+
+We added the minimal dependencies:
+
+fastapi
+uvicorn[standard]
+requests
+python-dotenv
+pydantic
+
+You installed them successfully.
+
+12. Testing workflow we established
+
+Use:
+
+VS Code terminal
+preferably PowerShell on Windows
+one terminal for MCP
+one terminal for backend
+browser /docs for endpoint testing
+
+Commands used:
+
+MCP
+uvicorn src.mcp_server.main:app --reload --port 8000
+Backend
+uvicorn src.backend.main:app --reload --port 9000
+
+Docs:
+
+http://127.0.0.1:8000/docs
+http://127.0.0.1:9000/docs
+
+Important testing order:
+
+MCP tool endpoints
+then backend
+then frontend
+
+But because MCP tools are failing, testing is blocked at MCP stage.
+
+13. What map tools are currently part of the idea
+
+Current MCP/tool story in design:
+
+geocode
+nearby
+route
+traffic
+place_details
+
+Refined future tool story:
+
+geocode
+nearby
+distance_matrix
+distance_matrix_eta
+route
+route_eta
+place_details
+
+Optional:
+
+snap_to_road only for live tracking scenarios, not core PS-09 search
+14. Product/backend weaknesses identified
+
+We listed these weaknesses and mitigation directions:
+
+Weakness 1
+
+Current intent families are mostly:
+
+search_places
+refine_results
+Improvement
+
+Expand intent types to:
+
+search
+refine
+compare/reorder
+route
+detail lookup
+Weakness 2
+
+Ranking is not yet fully explainable
+
+Improvement
+
+Add “ranking reasons” like:
+
+nearby
+high rating
+low traffic
+open now
+Weakness 3
+
+Place details tool exists but not integrated into result enrichment
+
+Improvement
+
+Use place details on top-k selected places, not all candidates
+
+Weakness 4
+
+Follow-up handling is mostly filtering, not routing/comparison
+
+Improvement
+
+Support:
+
+“which one is closest?”
+“take me to the third one”
+“tell me more about the second place”
+15. What still needs to be changed in repo for Distance Matrix design
+
+We identified these repo files to change if you continue that path:
+
+Backend
+src/backend/main.py
+src/backend/clients/mcp_client.py
+src/backend/services/ranking_service.py
+src/backend/services/intent_parser.py
+src/backend/services/place_normalizer.py
+optionally src/backend/services/formatter.py
+MCP
+src/mcp_server/main.py
+src/mcp_server/tools/nearby.py
+src/mcp_server/config.py
+
+Priority 1 was
+
+Strengthen the MCP + backend tool surface for PS-09 so the system is not just a simple nearby-search wrapper, but a more proper conversational place-discovery backend.
+
+Concretely, Priority 1 meant:
+
+Move from the earlier weaker tool story:
+
+geocode
+nearby
+route
+traffic
+place_details
+
+to a stronger PS-09-aligned retrieval stack:
+
+geocode
+nearby
+text_search
+place_details
+distance_matrix
+distance_matrix_eta
+route
+
+The key idea was:
+
+Nearby for category-based local discovery
+Text search for free-text / named-entity / broad place queries
+Distance matrix for future comparison/ranking across many candidates
+Route for selected-place navigation
+Place details for richer result enrichment
+Why we wanted this
+
+Because PS-09 is not just “find nearby POIs.”
+
+It is about:
+
+free-text place discovery
+conversational refinement
+better ranking
+follow-up interactions
+map-first result rendering
+
+So the backend needed to support more than one retrieval style.
+
+The solution we worked on
+1. MCP server expansion
+
+We upgraded the MCP server so it now structurally exposes these tools:
+
+/tool/geocode
+/tool/nearby
+/tool/route
+/tool/traffic
+/tool/place_details
+/tool/text_search
+/tool/distance_matrix
+/tool/distance_matrix_eta
+What we added
+
+New MCP tool files:
+
+src/mcp_server/tools/text_search.py
+src/mcp_server/tools/distance_matrix.py
+src/mcp_server/tools/distance_matrix_eta.py
+What we fixed
+import/name mismatches in src/mcp_server/main.py
+cleaned main.py so it only exposes MCP tool endpoints
+removed backend-style request models from MCP server code
+End result
+
+http://127.0.0.1:8000/docs now shows the expanded toolset correctly.
+
+2. Backend retrieval upgrade
+
+We rewrote src/backend/main.py so the backend can intelligently choose retrieval mode.
+
+New backend logic includes:
+determine_search_strategy(...)
+determine_search_radius(...)
+merge_candidate_results(...)
+apply_dynamic_filters(...)
+fallback enrichment with route/traffic
+session-aware refine flow
+Search strategy behavior
+
+The backend now supports:
+
+nearby
+
+For category + location style queries
+Example:
+
+“cafes near Pilani”
+text_search
+
+For named/broad/free-text queries
+Example:
+
+“heritage sites in Mysuru”
+“Apollo hospitals in Chennai”
+hybrid
+
+When query ambiguity suggests using both retrieval styles
+
+3. Cleaner frontend integration
+
+We improved backend API design by adding a proper POST endpoint.
+
+Before
+
+Backend only had:
+
+GET /query
+After
+
+Backend now has:
+
+GET /health
+GET /query
+POST /query
+Why this mattered
+
+POST /query is cleaner for frontend because it supports structured JSON like:
+
+{
+  "query": "top cafes near BITS Pilani",
+  "session_id": "session-123"
+}
+
+instead of stuffing everything into URL query params.
+
+What we changed
+
+In src/backend/main.py:
+
+added QueryRequest
+moved all main query logic into process_query(...)
+made both GET and POST wrappers call the same function
+
+So:
+
+GET /query stays useful for quick testing
+POST /query becomes the real frontend integration endpoint
+4. Backend client update
+
+We confirmed and used the updated src/backend/clients/mcp_client.py, which now supports:
+
+geocode(...)
+nearby(...)
+route(...)
+traffic(...)
+place_details(...)
+text_search(...)
+distance_matrix(...)
+distance_matrix_eta(...)
+
+This was necessary so backend could actually call the expanded MCP toolset.
+
+5. Normalization improvements
+
+We reviewed place_normalizer.py and aligned it with the new backend flow.
+
+Why
+
+Because now results can come from:
+
+nearby search
+text search
+later, distance-matrix enrichment
+
+So normalization needed to be more robust and schema-consistent.
+
+Direction we adopted
+
+Support:
+
+broader field aliases
+nullable future enrichment fields like:
+matrix_distance
+matrix_eta
+parking
+
+And keep normalized output stable for:
+
+filtering
+ranking
+formatting
+6. Ranking improvements
+
+We also updated the direction for ranking_service.py.
+
+Why
+
+The ranking layer needed to better match conversational queries.
+
+Improvements we discussed/worked toward
+support “closest” as well as “nearest”
+support “top” as well as “best”
+later prefer:
+matrix_distance
+matrix_eta
+make traffic scoring more sane
+improve relevance over just name matching
+
+So the ranking layer remains:
+
+deterministic
+backend-owned
+query-aware
+The net effect of Priority 1
+
+After this work, the system moved from:
+
+“LLM parses query, backend does basic nearby search”
+
+to:
+
+“LLM parses query, backend chooses retrieval mode intelligently, merges candidates, filters deterministically, ranks results, and exposes a cleaner API for frontend use.”
+
+That is the real improvement.
+
+What is now true after Priority 1
+
+Structurally, your system now has:
+
+MCP layer
+
+A richer PS-09-aligned callable tool surface
+
+Backend layer
+
+A better orchestration pipeline with:
+
+search strategy selection
+radius strategy
+candidate merging
+deterministic filtering
+cleaner POST API
+Frontend integration
+
+Cleaner request contract through POST /query
+
+In one line
+
+Priority 1 was about turning the project from a simple nearby-search backend into a stronger conversational place-discovery backend with an expanded MCP toolset and cleaner frontend-facing API.
