@@ -1,0 +1,5 @@
+uvicorn src.backend.main:app --reload --port 9000
+http://127.0.0.1:9000/docs
+
+uvicorn src.mcp_server.main:app --reload --port 8000
+http://127.0.0.1:8000/docs
