@@ -5,11 +5,8 @@ from typing import List, Optional
 from src.mcp_server.tools.geocode import geocode_address
 from src.mcp_server.tools.nearby import search_nearby
 from src.mcp_server.tools.routing import get_route
-from src.mcp_server.tools.traffic import get_traffic
 from src.mcp_server.tools.place_details import get_place_details
 from src.mcp_server.tools.text_search import text_search
-from src.mcp_server.tools.distance_matrix import distance_matrix
-from src.mcp_server.tools.distance_matrix_eta import distance_matrix_eta
 
 app = FastAPI(title="Mappls MCP Server", version="2.0")
 
@@ -79,15 +76,6 @@ def tool_route(req: RouteRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-
-@app.post("/tool/traffic")
-def tool_traffic(req: TrafficRequest):
-    try:
-        return get_traffic(req.lat, req.lng)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.post("/tool/place_details")
 def tool_place_details(req: PlaceDetailsRequest):
     try:
@@ -100,21 +88,5 @@ def tool_place_details(req: PlaceDetailsRequest):
 def tool_text_search(req: TextSearchRequest):
     try:
         return text_search(req.query, req.location, req.top_k)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/tool/distance_matrix")
-def tool_distance_matrix(req: DistanceMatrixRequest):
-    try:
-        return distance_matrix(req.origin, req.destinations)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/tool/distance_matrix_eta")
-def tool_distance_matrix_eta(req: DistanceMatrixRequest):
-    try:
-        return distance_matrix_eta(req.origin, req.destinations)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -1,5 +1,5 @@
 import requests
-from src.mcp_server.config import MAPPLS_API_KEY, SEARCH_BASE_URL
+from src.mcp_server.config import MAPPLS_API_KEY
 
 
 def text_search(query: str, location: str = "", top_k: int = 10):
