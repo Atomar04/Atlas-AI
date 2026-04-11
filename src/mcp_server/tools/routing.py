@@ -1,5 +1,5 @@
 import requests
-from src.mcp_server.config import MAPPLS_API_KEY, ROUTE_BASE_URL
+from src.mcp_server.config import MAPPLS_API_KEY, BASE_URL
 from src.mcp_server.utils import latlng_to_lnglat
 
 
