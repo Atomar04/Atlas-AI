@@ -8,8 +8,20 @@ from src.backend.clients.mcp_client import MCPClient
 from src.backend.services.ranking_service import rank_places
 from src.backend.services.formatter import format_response
 from src.backend.services.place_normalizer import normalize_places
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 mcp_client = MCPClient()
 
 
