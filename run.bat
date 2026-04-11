@@ -4,11 +4,21 @@ setlocal
 set ROOT_DIR=%~dp0
 set FRONTEND_DIR=%ROOT_DIR%src\frontend
 
-echo Starting backend from project root...
+echo ===============================
+echo Starting Backend (port 9000)...
+echo ===============================
 cd /d "%ROOT_DIR%"
-start "backend" cmd /k uvicorn src.backend.main:app --reload --port 8000
+start "backend" cmd /k uvicorn src.backend.main:app --reload --port 9000
 
-echo Starting frontend...
+echo ===============================
+echo Starting MCP Server (port 8000)...
+echo ===============================
+cd /d "%ROOT_DIR%"
+start "mcp_server" cmd /k uvicorn src.mcp_server.main:app --reload --port 8000
+
+echo ===============================
+echo Starting Frontend...
+echo ===============================
 cd /d "%FRONTEND_DIR%"
 
 if not exist package.json (
@@ -25,6 +35,10 @@ if not exist node_modules (
 start "frontend" cmd /k npm run dev
 
 echo.
-echo Backend:  http://localhost:8000
-echo Frontend: http://localhost:5173
+echo ==========================================
+echo Backend:    http://localhost:9000
+echo MCP Server: http://localhost:8000
+echo Frontend:   http://localhost:5173
+echo ==========================================
 echo.
+pause
