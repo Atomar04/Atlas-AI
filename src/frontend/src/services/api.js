@@ -1,15 +1,16 @@
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const BASE_URL = "/api";
 
 export async function sendChatQuery({ query, sessionId }) {
-  const url = new URL(`${BASE_URL}/query`);
-  url.searchParams.set("q", query);
-  url.searchParams.set("session_id", sessionId);
-
-  const res = await fetch(url.toString(), {
-    method: "GET",
+  const res = await fetch(`${BASE_URL}/query`, {
+    method: "POST",
     headers: {
-      Accept: "application/json"
-    }
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      query: query,
+      session_id: sessionId,
+    }),
   });
 
   if (!res.ok) {

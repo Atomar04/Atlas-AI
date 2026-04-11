@@ -10,6 +10,7 @@ export function loadMappls() {
   }
 
   const apiKey = import.meta.env.VITE_MAPPLS_API_KEY;
+  console.log("Mappls API Key:", apiKey);
 
   if (!apiKey || apiKey === "YOUR_MAPPLS_API_KEY") {
     return Promise.reject(
@@ -21,6 +22,12 @@ export function loadMappls() {
     const existingScript = document.querySelector('script[data-mappls-sdk="true"]');
 
     if (existingScript) {
+      console.log("Mappls script already present");
+
+      if (window.mappls) {
+        return resolve(window.mappls);
+      }
+
       existingScript.addEventListener("load", () => resolve(window.mappls));
       existingScript.addEventListener("error", reject);
       return;
@@ -32,8 +39,14 @@ export function loadMappls() {
     script.async = true;
     script.defer = true;
 
-    script.onload = () => resolve(window.mappls);
-    script.onerror = () => reject(new Error("Failed to load Mappls SDK"));
+    script.onload = () => {
+      console.log("Mappls SDK loaded");
+      resolve(window.mappls);
+    };
+    script.onerror = () => {
+      console.error("Failed to load Mappls SDK:", script.src);
+      reject(new Error("Failed to load Mappls SDK"));
+    };
 
     document.body.appendChild(script);
   });

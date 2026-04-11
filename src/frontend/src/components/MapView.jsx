@@ -13,14 +13,25 @@ export default function MapView({ center, places, selected, zoom = 13, onSelect 
       const mappls = await loadMappls();
       if (!mounted || initializedRef.current) return;
 
+      const CLOCK_TOWER = { lat: 28.3639, lng: 75.5873 };
+
       const safeCenter = center?.lat && center?.lng
         ? [center.lng, center.lat]
-        : [75.58, 28.36];
+        : [CLOCK_TOWER.lng, CLOCK_TOWER.lat];
 
       mapInstanceRef.current = new mappls.Map("map", {
         center: safeCenter,
         zoom
       });
+
+      // Add default marker ONLY if no center provided
+      if (!center?.lat || !center?.lng) {
+        new mappls.Marker({
+          map: mapInstanceRef.current,
+          position: [CLOCK_TOWER.lng, CLOCK_TOWER.lat],
+          popupHtml: "<b>Clock Tower, BITS Pilani</b>",
+        });
+      }
 
       initializedRef.current = true;
     }
@@ -44,6 +55,7 @@ export default function MapView({ center, places, selected, zoom = 13, onSelect 
 
   useEffect(() => {
     const map = mapInstanceRef.current;
+    
     if (!map || !Array.isArray(places)) return;
 
     markersRef.current.forEach((marker) => marker.remove?.());
